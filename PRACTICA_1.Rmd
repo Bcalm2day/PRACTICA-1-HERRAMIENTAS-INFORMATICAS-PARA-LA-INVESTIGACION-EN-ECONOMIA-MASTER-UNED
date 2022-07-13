@@ -1,0 +1,602 @@
+---
+title: "PRACTICA 1"
+author: "Daniel Rodriguez Fustes"
+date: "18/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Prueba de R
+
+## Vectores
+
+### 1.Cree el vector A utilizando la función seq, de tal modo que se obtenga el siguiente resultado: 15, 12, 9, 6, 3, 0, -3, -6, -9
+¿Qué longitud tiene este vector? ¿Cuál es su suma? ¿Cuál es su valor medio? ¿Cuál es el error típico de la media?
+El error típico de la media se obtiene dividiendo la desviación típica entre la raíz cuadrada del tamaño de la muestra (número de elementos).
+
+
+```{r}
+A<-c(seq(15,-9,-3))
+A
+```
+LONGITUD DEL VECTOR
+```{r}
+length(A)
+```
+SUMA DEL VECTOR
+```{r}
+sum(A)
+```
+VALOR MEDIO DEL VECTOR
+```{r}
+mean(A)
+```
+ERROR TÍPICO DE LA MEDIA
+```{r}
+error_tipico_media<-sd(A)/sqrt(length(A))
+error_tipico_media
+```
+
+
+### 2.Utilizando las funciones rep y seq, cree el vector B, con los siguientes datos: 2, 2, 2, 2, 2, 5, 7.5, 10, 12.5
+### Calcule: la suma de A y B, la diferencia entre A y B, √(A^2 + B^2).
+
+VECTOR B
+```{r}
+B<-c(rep(2,5),seq(5,12.5,2.5))
+B
+```
+SUMA DE A Y B
+```{r}
+A+B
+```
+RESTA DE A Y B
+```{r}
+A-B
+```
+√(A^2 +B^2)
+```{r}
+sqrt(A^2+B^2)
+```
+
+
+## Matrices
+### Se dispone de la siguiente tabla de datos:
+### 3.Cree la matriz M con estos datos, indicando el nombre de cada columna. Muestre la dimensión de la matriz. Utilizando la función apply, obtenga un promedio de los resultados por columna.
+
+```{r}
+M<-matrix(c(68,56,81,74,1.73,1.68,1.82,1.78,22,24,21,25),4,3)
+colnames(M)<-c("Peso","Estatura","Edad")
+M
+```
+DIMENSION DE LA MATRIZ
+```{r}
+dim(M)
+```
+MEDIA POR COLUMNA
+```{r}
+apply(M,2,mean)
+```
+
+## Dataframes
+
+### 4.Con los datos de la matriz anterior, cree el dataframe datos.
+### Añada dos columnas, con el nombre de los individuos: “Andrés”, “Lucía”, “Marcos”, “Antonio”; y el sexo: “Hombre” o “Mujer”.
+### Añada un nuevo individuo al conjunto de datos: “Carmen”, peso=59, estatura=1.74 y edad=23.
+### La variable nombre es de tipo carácter, sexo es un factor y el resto son numéricas.
+### Muestre la estructura del dataframe datos.
+
+```{r}
+datos<-data.frame(M,stringsAsFactors = FALSE)
+datos
+```
+AÑADIR DOS COLUMNAS CON NOMBRE Y SEXO
+```{r}
+datos$Nombre<-c("Andrés","Lucía","Marcos","Antonio")
+datos$Sexo<-c("Hombre","Mujer","Hombre","Hombre")
+datos
+```
+AÑADIR AL CONJUNTO DE DATOS A CARMEN
+```{r}
+datos<-rbind(datos,c(59,1.74,23,"Carmen","Mujer"))
+datos
+```
+Actualizamos el tipo de datos de las columnas Peso, Estatura y Edad a tipo numérico, ya que al incluir el vector con los datos de Carmen se han agregado con tipo carácter
+```{r}
+datos$Peso<-as.numeric(datos$Peso)
+datos$Estatura<-as.numeric(datos$Estatura)
+datos$Edad<-as.numeric(datos$Edad)
+```
+
+### 5.Del dataframe creado, extraiga: el peso de Carmen, todos los nombres, los datos de Marcos y los nombres de los que tengan más de 23 años.
+### Añada una columna al dataframe datos, denominada ALTURA. De tal modo que, si el individuo mide más 1.78, tendrá el valor “Alto”; y de lo contrario, tendrá el valor “Normal”.
+
+
+PESO DE CARMEN
+```{r}
+datos[datos$Nombre=="Carmen","Peso"]
+```
+TODOS LOS NOMBRES
+```{r}
+datos[,"Nombre"]
+```
+DATOS DE MARCOS
+```{r}
+datos[datos$Nombre=="Marcos",]
+```
+NOMBRES DE LOS MAYORES DE 23 AÑOS
+```{r}
+datos[datos$Edad>23,"Nombre"]
+```
+AÑADIR UNA COLUMNA DE ALTURA Y OTORGAR EL VALOR "ALTO" SI MIDE MÁS DE 1.78 Y "NORMAL" SI NO LO CUMPLE
+```{r}
+datos$Altura<-c(ifelse(datos$Estatura>1.78,"Alto","Normal"))
+datos
+```
+
+## Listas
+
+### 6.Cree la lista L, con los objetos que ha creado: A, B, M, datos.
+### Encuentre en la lista: los valores de A que cumplan la condición A+3<0, el valor [2,3] de la matriz M, y los datos de Carmen del dataframe datos.
+
+CREAR LISTA L CON VECTOR A, VECTOR B, MATRIZ TABLA DE DATOS Y DATAFRAME DATOS
+```{r}
+L<-list(A,B,M,datos)
+L
+```
+ENCONTRAR EN LA LISTA LOS VALORES DEL VECTOR A QUE CUMPLAN LA CONDICION A+3<0
+```{r}
+L[[1]][A+3<0]
+```
+ENCONTRAR EL VALOR [2,3] EN LA MATRIZ M
+```{r}
+L[[3]][2,3]
+```
+ENCONTRAR LOS DATOS DE CARMEN DEL DATAFRAME DATOS
+```{r}
+L[[4]][datos$Nombre=="Carmen",]
+```
+
+## Funciones y Bucles
+
+### 7.Cree la función normalizar, que realice la normalización estándar (restar la media y dividir por la desviación típica) y la normalización min-max (restar el mínimo y dividir por la diferencia entre el máximo y el mínimo). Dicha función devolverá una lista.
+### Utilice esta función empleando como argumento el PESO del dataframe datos, y después empleando la ESTATURA.
+
+CREAR FUNCIÓN NORMALIZAR QUE REALICE LA NORMALIZACIÓN ESTÁNDAR Y LA MIN-MAX
+```{r}
+normalizarvariable<-function(variable){
+  nor_estandar<-(variable-mean(variable))/sd(variable)
+  nor_maxmin<-(variable-min(variable))/(max(variable)-min(variable))
+  list(nor_estandar,nor_maxmin)
+}
+```
+UTILIZAR LA FUNCIÓN EMPLEANDO COMO ARGUMENTO EL PESO
+```{r}
+normalizarvariable(datos$Peso)
+```
+UTILIZAR LA FUNCIÓN EMPLEANDO COMO ARGUMENTO LA ESTATURA
+```{r}
+normalizarvariable(datos$Estatura)
+```
+
+### 8.Dadas las siguientes instrucciones:
+
+### df <- as.data.frame(HairEyeColor, stringsAsFactors = FALSE)
+### str(df)
+### 'data.frame':    32 obs. of  4 variables:
+###  $ Hair: chr  "Black" "Brown" "Red" "Blond" ...
+###  $ Eye : chr  "Brown" "Brown" "Brown" "Brown" ...
+###  $ Sex : chr  "Male" "Male" "Male" "Male" ...
+###  $ Freq: num  32 53 10 3 11 50 10 30 10 25 ...
+### Cree un bucle for que recorra cada columna del dataframe df, si la columna es de tipo carácter, convierta la variable en un factor.
+### Utilice la función is.character para comprobar si la columna es de tipo carácter.
+
+```{r}
+df <- as.data.frame(HairEyeColor, stringsAsFactors = FALSE)
+
+for (columna in 1:4) {
+  if(is.character(df[,columna])){
+    df[,columna]<-as.factor(df[,columna])
+  }
+}
+str(df)
+```
+
+## Dataframes y Gráficos
+
+### En los siguientes ejercicios trabajará con el dataset mtcars, que consta de 32 coches y 11 variables. Descripción de las variables que se van a utilizar:
+
+### mpg: Millas recorridas por galón de combustible.
+### cyl: Número de cilindros.
+### hp: Caballos de fuerza.
+### wt: Peso (1000 libras).
+### qsec: Tiempo empleado en recorrer 1/4 de milla (segundos).
+
+### 9.¿Cuáles son los 5 coches más pesados?
+```{r}
+consulta<-order(mtcars$wt,decreasing = T)
+mas_pesados<-mtcars[consulta,]
+head(mas_pesados,5)
+```
+### ¿Qué coches tienen 8 cilindros y 175 o más caballos de fuerza? (ordene el resultado por caballos de fuerza)
+```{r}
+consulta<-order(mtcars$hp,decreasing = T)
+mas_potentes<-mtcars[consulta,]
+mas_potentes_8cyl_175hp<-mas_potentes[mas_potentes$cyl==8 & mas_potentes$hp>=175,]
+mas_potentes_8cyl_175hp
+```
+### ¿Cuál es el coche más rápido?
+```{r}
+consulta<-order(mtcars$qsec,decreasing = F)
+mas_rapido<-mtcars[consulta,]
+head(mas_rapido,1)
+```
+### ¿Cuál es el coche que menos combustible consume?
+```{r}
+consulta<-order(mtcars$mpg,decreasing = T)
+menos_consume<-mtcars[consulta,]
+head(menos_consume,1)
+```
+### ¿Cuál es el consumo medio de los coches de 4 cilindros?
+```{r}
+consulta<-mtcars$cyl==4
+four_cyl<-mtcars[consulta,]
+mean(four_cyl$mpg)
+```
+
+### 10.Cree un histograma del peso de los coches, y mediante la función abline dibuje: una línea vertical (roja) en la media de la distribución y otra línea vertical (verde) en la mediana de la distribución.
+```{r}
+histograma<-hist(mtcars$wt)
+histograma_media<-abline(histograma,v=mean(mtcars$wt),col="red")
+histograma_media_median<-abline(histograma_media,v=median(mtcars$wt),col="green")
+
+```
+
+### 11.Cree un gráfico que muestre la relación entre el peso y las millas por galón: mpg en función de wt. Interprete el gráfico.
+```{r}
+plot(mtcars$mpg,mtcars$wt)
+```
+
+Podemos observar por la nube de puntos del gráfico que hay una relación negativa entre ambas variables, lo cual tiene sentido: los vehículos pesados consumen más combustible que los vehículos ligeros para recorrer una misma distancia. La nube de puntos se concentra en el los valores de peso que se encuentran entre 2,5 y 4 con respecto al peso; y entre 15 y 25 en relacion al consumo de combustible. Hay algunos valores atípicos en la esquina superior izquierda e inferior derecha del cuadro.
+
+
+### 12.Convierta la variable cyl en un factor. A continuación, cree un diagrama de caja que represente los caballos de fuerza en función del número de cilindros. Interprete el gráfico.
+```{r}
+mtcars$cyl<-factor(mtcars$cyl)
+boxplot(mtcars$hp ~ mtcars$cyl)
+```
+
+La primera deducción que se extrae del gráfico es que hay una relación positiva entre  número de cilindros y la potencia del motor. Si analizamos cada uno de los motores según el número de cilindros se obtienen estas conclusiones: 
+Los motores de 4 cilindros tienen una distribución asimétrica con respecto a la mediana, la cual se haya muy próxima al tercer cuartil, es decir, que casi el 75% de los coches de 4 cilindros tienen una potencia inferior a la mediana. Los valores máximo y mínimo se hayan a una distancia simétrica con respecto a los cuartiles tercero y primero respectivamente. Su distribución es próxima a una normal.
+Los motores de 6 cilindros tienen muy poca dispersión con respecto a la mediana, es decir los datos están bastante concentrados. Siendo la distribución no simétrica. Es destacable el valor atípico superior que se haya a mucha distancia del tercer cuartil.
+Los motores de 8 cilindros tienen un rango amplio de potencia, la distribución con respecto de la mediana no es simetrica, además el valor máximo está muy alejado de la mediana y del tercer cuartil.
+
+# Prueba de Preprocesado
+
+### La base de datos contiene 1.500 registros que representan a los clientes de un banco que demandaron un crédito personal en el año 2019. Este conjunto de datos contiene seis variables numéricas y cuatro variables categóricas además de la variable CLASE que muestra la información de si se ha devuelto o no el crédito solicitado. La descripción de la base de datos es la siguiente:
+
+### Variables numéricas:
+
+### NUM_FAMILIA: número de miembros de la unidad familiar.
+
+### INVERSION: importe de la inversión.
+
+### IMPCUOTA: importe de la cuota del préstamo.
+
+### VALVIV: valor neto de las viviendas propias.
+
+### INGRESOS: es la suma de los ingresos anuales fijos, los variables y otros ingresos provenientes de otras fuentes.
+
+### SALDO: consta del saldo medio a la vista y el saldo medio no vista.
+### Variables categóricas:
+
+### CIVIL: estado civil de la persona que pide el préstamo: 1. Casado; 2. Separado; 3. Soltero.
+
+### TIPO_TRABAJO: El tipo de trabajo se ha recodificado en las siguientes categorías: 1. Fijo; 2. Temporal; 3. Autónomo; 4. Pensionista; 5. Otros.
+
+### VIVIENDA: modalidades de la vivienda: 1. Propiedad libre de cargas; 2. Propiedad hipotecada; 3. Alquiler; 4. Domicilio con la familia; 5. Otros.
+
+### NACIONALIDAD: nacionalidad del que solicita el préstamo: 1. Español; 2. Extranjero.
+
+### CLASE: Toma el valor SÍ, si se ha devuelto el crédito y NO, si no se ha devuelto.
+
+### Se solicita que se realicen los siguientes análisis:
+
+### 1.Análisis descriptivo de las variables.
+
+### 2.Tablas de datos.
+
+### 3.Análisis gráfico.
+
+### 4.Tabla de correlaciones.
+
+### 5.Imputación de datos ausentes.
+
+### 6.Equilibrado de la muestra.
+
+-------------------------------------------------------------------------
+
+En primer lugar se carga la base de datos y se convierte en el dataframe "credito".
+```{r}
+suppressWarnings(suppressPackageStartupMessages(library(readxl)))
+credito <- read_excel("24685081-datos_preprocesado.xlsx", 
+     col_types = c("numeric", "numeric", "numeric", 
+         "numeric", "numeric", "numeric", 
+         "text", "text", "text", "text", "text"))
+credito <- as.data.frame(credito, stringsAsFactors = FALSE)
+```
+Se convierten en factor las variables que son de clase carácter.
+```{r}
+for (columna in 1:11) {
+  if(is.character(credito[,columna])){
+    credito[,columna]<-as.factor(credito[,columna])
+  }
+}
+```
+Se asignan etiquetas a las variables tipo factor.
+```{r}
+#Variable CIVIL
+estado_civil_levels<-c("1","2","3")
+estado_civil_labels<-c("Casado","Separado","Soltero")
+credito$CIVIL<-factor(credito$CIVIL,levels = estado_civil_levels,labels = estado_civil_labels)
+#Variable TIPO_TRABAJO:
+trabajo_levels<-c("1","2","3","4","5")
+trabajo_labels<-c("Fijo","Temporal","Autónomo","Pensionista","Otros")
+credito$TIPO_TRABAJO<-factor(credito$TIPO_TRABAJO,levels = trabajo_levels,labels = trabajo_labels)
+#Variable VIVIENDA:
+vivienda_levels<-c("1","2","3","4","5")
+vivienda_labels<-c("Prop. libre","Prop. hipotecada","Alquiler","Domicilio con familia","Otros")
+credito$VIVIENDA<-factor(credito$VIVIENDA,levels = vivienda_levels,labels = vivienda_labels)
+#Variable NACIONALIDAD:
+nacionalidad_levels<-c("1","2")
+nacionalidad_labels<-c("Español","Extranjero")
+credito$NACIONALIDAD<-factor(credito$NACIONALIDAD,levels = nacionalidad_levels,labels = nacionalidad_labels)
+```
+
+A continuación se realiza una exploración general de los datos del dataframe para detectar posibles datos ausentes (NA).
+```{r}
+sapply(credito,function(x) sum(is.na(x)))
+```
+La muestra contiene varias variables con datos ausentes que deben ser tratados antes de continuar con el análisis descriptivo. No se va a eliminar ninguna variable del conjunto de datos puesto que la cantidad de datos ausentes es pequeño en comparación al tamaño de la muestra y la pérdida de información valiosa sería demasiado grande.
+
+Para los datos ausentes en la variable no cuantitativa de tipo factor VIVIENDA se asigna el valor de la moda de la variable VIVIENDA a los valores ausentes.
+Se crea la función "moda" que calcula la moda y se aplica sobre la variable VIVIENDA.
+```{r}
+moda <- function(v){
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+moda(credito$VIVIENDA)
+```
+La moda de la variable VIVIENDA tiene el valor "Propiedad hipotecada", que es el valor que se imputa a los datos ausentes en la variable VIVIENDA.
+```{r}
+credito[is.na(credito$VIVIENDA), "VIVIENDA"] <- moda(credito$VIVIENDA)
+```
+Se comprueba que ya no hay valores ausentes en la variable VIVIENDA.
+```{r}
+sapply(credito,function(x) sum(is.na(x)))
+```
+Se asigna el valor de la media predictiva a las variables numéricas con datos ausentes.
+```{r}
+suppressWarnings(suppressPackageStartupMessages(library(mice)))
+dataTemp<-mice(credito,m=5,method="pmm")
+```
+A continuación se agregan los datos obtenidos mediante el algoritmo mice al resto del conjunto de datos y le damos un nuevo nombre al conjunto de datos resultante: "credito_v1"
+```{r}
+credito_v1<-complete(dataTemp,1)
+```
+Se comprueba que ya no hay datos ausentes en la muestra.
+```{r}
+sapply(credito_v1,function(x) sum(is.na(x)))
+```
+A continuación se procede a detectar visualmente si hay datos extremos (outliers) mediante los gráficos de caja.
+```{r}
+length(boxplot(credito_v1)$out)
+```
+Se detectan más de 700 outliers en el dataframe "credito_v1". Se eliminan los outliers de las variables cuantitativas. Se ignoran los ouliers de las variables categóricas NACIONALIDAD y CLASE, especialmente esta última, ya que contiene información esencial que debe ser aprovechada (observaciones con valor "NO".
+```{r}
+for(columna in 1:6) {
+  credito_v1<-credito_v1[!credito_v1[,columna] %in% boxplot.stats(credito_v1[,columna])$out,]
+}
+```
+
+Se comienza el análisis descriptivo de las variables con la base de datos preprocesada "credito_v1"
+
+Estructura del archivo.
+```{r}
+str(credito_v1)
+```
+Información descriptiva de las variables.
+```{r}
+suppressWarnings(suppressPackageStartupMessages(library(skimr)))
+skim(credito_v1)
+```
+Primeras seis observaciones
+```{r}
+head(credito_v1)
+```
+
+A continuación se emplean tablas para obtener información más específica.
+Se agrupan las variables CLASE y NUM_FAMILIA, y añadimos una columna con el porcentaje que representa el esfuerzo económico de la cuota sobre los ingresos.
+```{r}
+suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
+credito_v1 %>% 
+  group_by(CLASE,NUM_FAMILIA) %>%
+  summarise(ESFUERZO_ECON = (mean(IMPCUOTA) / (mean(INGRESOS)/12)*100))
+```
+Se agrupa la variable CIVIL a la tabla anterior
+```{r}
+credito_v1 %>% 
+  group_by(CLASE,NUM_FAMILIA,CIVIL) %>%
+  summarise(ESFUERZO_ECON = (mean(IMPCUOTA) / (mean(INGRESOS)/12)*100))
+```
+Se aplica un filtro sobre los ingresos, para contemplar únicamente las observaciones de las familias que ingresan menos de 18000 euros anuales.
+```{r}
+credito_v1 %>% 
+  filter(INGRESOS<18000) %>%
+  group_by(CLASE, NUM_FAMILIA,CIVIL) %>% 
+  summarise(ESFUERZO_ECON = (mean(IMPCUOTA) / (mean(INGRESOS)/12)*100))
+```
+A continuación se aborda el análisis descriptivo gráfico.
+
+Se ve las distribución de los valores de las variables numéricas de manera gráfica.
+```{r}
+suppressWarnings(suppressPackageStartupMessages(library(funModeling)))
+plot_num(credito_v1)
+```
+
+También se visualizan las frecuencias de las variables categóricas.
+```{r}
+freq(credito_v1)
+```
+
+
+Se cruza la variable CLASE con la variable VIVIENDA
+```{r}
+gr2 <- ggplot(credito_v1, aes(VIVIENDA, fill = CLASE)) + 
+       geom_bar(position="dodge", colour="cyan2") +
+       xlab("Régimen de propiedad de la vivienda") + 
+       ylab("Número de casos") + 
+       ggtitle("Casos según la devolución del préstamo y el régimen de propiedad de la vivienda")
+gr2
+```
+
+Se realiza un grid con las variables CLASE y TIPO_TRABAJO
+```{r}
+gr3 <- ggplot(credito_v1, aes(x=CLASE),fill(CLASE)) + 
+       geom_bar(position="dodge",colour="cyan2", fill="cyan3") +
+       ylab("Número de casos")
+gr3 + facet_grid(.~ TIPO_TRABAJO) +
+      ggtitle("Casos según la devolución del préstamo y el tipo de trabajo")
+```
+
+Se presenta un histograma con el número de registros de la devolución del crédito según los ingresos.
+```{r}
+hist1 <- ggplot(credito_v1, aes(x = INGRESOS)) + 
+         geom_histogram(aes(y=..density..), colour="cyan2", fill = "cyan3") +
+         ylab("Densidad") +
+         geom_density(alpha = .2, fill = "#FF6666") +
+         ggtitle("Número de registros de la devolución del crédito según el importe de la cuota") 
+hist1 + facet_grid(CLASE ~.)
+```
+
+Se presentan diagramas de caja que relacionan NACIONALIDAD e IMPCUOTA.
+```{r}
+plot1 <- ggplot(credito_v1, aes(x = NACIONALIDAD, y = IMPCUOTA )) + 
+     geom_boxplot(color= 'cyan3') + 
+     ggtitle("Gráficos de caja según la nacionalidad y el importe de la cuota") + 
+     theme(plot.title = element_text(hjust = 0.5))
+plot1
+```
+
+Se realiza un Scatter plot con suavizado que relaciona la inversión y la cuota mensual.
+```{r}
+ggplot(data = credito_v1, aes(INVERSION, IMPCUOTA)) + 
+  geom_point(aes(col = CLASE)) + 
+  stat_smooth() +
+  ggtitle("Scatterplot. Inversión e importe de la cuota") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Correlaciones. Se genera el fichero "var_num" con las variables numéricas y sobre este archivo se calculan las correlaciones entre ellas.
+```{r}
+var_num <- credito_v1[ ,c('NUM_FAMILIA', 'INVERSION', 'IMPCUOTA', 'VALVIV', 'INGRESOS', 'SALDO')]
+suppressWarnings(suppressPackageStartupMessages(library(PerformanceAnalytics)))
+chart.Correlation(var_num, histogram = F, pch = 19)
+```
+
+Equilibrado de la muestra. Se inspecciona la variable dependiente CLASE.
+```{r}
+skim(credito_v1$CLASE)
+```
+Se recuentan más de 1.000 casos en los que se ha devuelto el crédito y 124 casos en los que no. La diferencia es muy grande por lo que se hace necesario un equilibrado de la muestra.
+Se realiza un balanceo a nivel de datos. Se realiza un submuestreo de los datos con valor CLASE = SI mediante el método del cubo.
+```{r}
+# Data frame que contiene la población (CLASE = SI)
+credito_v1_SI <- subset(credito_v1, CLASE == "SI")
+
+# Creamos las variables indicadores para cada una de las variables de equilibrio
+suppressWarnings(suppressPackageStartupMessages(library(sampling)))
+X1 <- disjunctive(credito_v1_SI$CIVIL)
+colnames(X1) <- levels(credito_v1_SI$CIVIL)
+
+X2 <- disjunctive(credito_v1_SI$TIPO_TRABAJO)
+colnames(X2) <- levels(credito_v1_SI$TIPO_TRABAJO)
+
+X3 <- disjunctive(credito_v1_SI$VIVIENDA)
+colnames(X3) <- levels(credito_v1_SI$VIVIENDA)
+
+X4 <- disjunctive(credito_v1_SI$NACIONALIDAD)
+colnames(X4) <- levels(credito_v1_SI$NACIONALIDAD)
+
+# Creamos también una variable que vale 1 en todos los registros 
+# (para comprobar la estimación del tamaño poblacional)
+UNO = rep(1, dim(credito_v1_SI)[1])
+
+# Construimos la matriz de equilibrio a partir de estas variables
+X <- cbind(UNO, X1, X2, X3, X4)
+
+# Calculamos las probabilidades de inclusión.
+# En este caso se trata de un m.a.s. con tamaño muestral de nB = 155
+# Por lo tanto, la prob. de inclusión de cada individuo es 155/nA; 
+# donde nA es el tamaño de la población.
+nB = 155
+nA = nrow(credito_v1_SI)
+pik = rep(nB/nA, nA)
+
+# Selecionamos la muestra con la matriz de equilibrio X   
+#   Order=1; los datos son ordenados aleatoriamente
+#   Order=2; se dejan como están
+#   Order=3; se ordenan en orden decreciente
+#   method=1; fase de aterrizaje mediante programación lineal
+#   method=2; fase de aterrizaje mediante supresión de variables
+s = samplecube(X, pik, order=1, comment = FALSE, method = 2)
+muestra.SI = cbind(credito_v1_SI, s)
+muestra.SI <- subset(muestra.SI, s == 1)
+muestra.SI$s <- NULL
+
+# Calidad de la muestra obtenida
+Totales <- apply(X, 2, sum)
+Horvitz.Thompson <- apply(X * s / pik, 2, sum)
+calidad <- cbind.data.frame(Totales, Horvitz.Thompson)
+calidad$Desv.Abs. <- round(calidad$Totales - calidad$Horvitz.Thompson, 2)
+calidad$Desv.Rel. <- round((calidad$Totales / calidad$Horvitz.Thompson - 1) *100, 2)
+print(as.matrix.data.frame(calidad))
+```
+Mediante el algoritmo SMOTE aumentamos un 25% (de 124 a 155) el número de valores de CLASE "NO".
+```{r}
+suppressWarnings(suppressPackageStartupMessages(library(DMwR)))
+credito_v1_NO <- subset(credito_v1, CLASE == "NO")
+# Debemos especificar el porcentaje de sobremuestreo. En este caso, el
+# resultado será igual a: (155 / 124 -1) * 100 = 25%
+p.over = 155 / dim(credito_v1_NO)[1] * 100 - 100
+p.over
+muestra.PROV<-rbind(muestra.SI,credito_v1_NO)
+muestra.NO<-SMOTE( CLASE ~ ., muestra.PROV, perc.over = p.over, perc.under = 0 )
+```
+
+Se combinan la submuestra "muestra.SI" con la sobremuestra "muestra.NO"
+```{r}
+credito_v1.balanceado <- rbind( muestra.SI, muestra.NO )
+```
+Se revisa la tabla de frecuencias.
+```{r}
+table(credito_v1.balanceado$CLASE)
+```
+Se realiza la regresion sobre la variable dependiente binaria CLASE:
+```{r}
+#Se transforma la variable CLASE en numérica y se actualizan los valores para que tome los valores 0 para el valor "NO" y 1 para el valor "SI"
+credito_v1.balanceado[,"CLASE"]<-as.numeric(credito_v1.balanceado[,"CLASE"])
+credito_v1.balanceado$CLASE[credito_v1.balanceado$CLASE==1]<-0
+credito_v1.balanceado$CLASE[credito_v1.balanceado$CLASE==2]<-1
+#Se ejecuta el modelo de regresión que calcula la probabilidad de que una persona devuelva un crédito.
+modelo <- glm(CLASE ~ ., data = credito_v1.balanceado, family = "binomial")
+summary(modelo)
+```
+Las variables significativas al 95% de confianza son:
+```{r}
+summary(modelo)$coeff[-1,4] < 0.05
+```
