@@ -1,3 +1,4 @@
+LIBRERIAS NECESARIAS PARA INSTALAR DMwR
 install.packages(c("zoo","xts","quantmod","mode"))
 install.packages("ROCR")
 install.packages("abind")
